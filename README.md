@@ -4,8 +4,8 @@ fmeflowclient is a simple Python 3.x library for communicating with an FME Flow 
 ## Install fmeflowclient
 fmeflowclient is available on PyPI:
 
-´´´bash
+```bash
 $ python -m pip install fmeflowclient
-´´´
+```
 
 fmeflowclient is currently develop on Python 3.11.
