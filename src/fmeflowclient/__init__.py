@@ -92,7 +92,7 @@ class FMEFlowClient:
                 workspaces: List[Dict[str, Any]] = self._request(
                     "GET",
                     f"/fmerest/v3/repositories/{repo_name}/items",
-                    params={"type": "workspace"}
+                    params={"type": "WORKSPACE"}
                 ).get('items', [])
                 all_workspaces.extend(workspaces)
         return all_workspaces
@@ -126,7 +126,7 @@ class FMEFlowClient:
             json=payload
         )
 
-    def get_job_status(self, job_id: str) -> Any:
+    def get_job_status(self, job_id: str) -> str:
         """
         Gets the status of a job by job ID.
 
@@ -134,12 +134,12 @@ class FMEFlowClient:
             job_id (str): The ID of the job.
 
         Returns:
-            Any: The response containing the job status.
+            str: The response containing the job status.
 
         Raises:
             requests.HTTPError: If the HTTP request fails.
         """
         return self._request(
             "GET",
-            f"/fmerest/v3/transformations/jobs/{job_id}"
-        )
+            f"/fmerest/v3/transformations/jobs/id/{job_id}"
+        ).get('status', 'UNKNOWN')
