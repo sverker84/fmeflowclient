@@ -1,5 +1,5 @@
 __title__ = "fmeflowclient"
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 __author__ = "Sverker Norlander"
 __license__ = "MIT"
 __copyright__ = "Copyright (c) Sverker Norlander"
