@@ -91,7 +91,8 @@ class FMEFlowClient:
             if repo_name:
                 workspaces: List[Dict[str, Any]] = self._request(
                     "GET",
-                    f"/fmerest/v3/repositories/{repo_name}/workspaces"
+                    f"/fmerest/v3/repositories/{repo_name}/items",
+                    params={"type": "workspace"}
                 ).get('items', [])
                 all_workspaces.extend(workspaces)
         return all_workspaces
