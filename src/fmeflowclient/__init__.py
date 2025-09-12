@@ -49,6 +49,18 @@ class FMEFlowClient:
         )
         response.raise_for_status()
         return response.json()
+    
+    def healthcheck(self) -> Dict[str, Any]:
+        """
+        Performs a health check on the FME Flow server.
+
+        Returns:
+            Dict[str, Any]: The response from the health check endpoint.
+
+        Raises:
+            requests.HTTPError: If the HTTP request fails.
+        """
+        return self._request("GET", "/fmerest/v3/healthcheck")
 
     def list_repositories(self) -> Dict[str, Any]:
         """
