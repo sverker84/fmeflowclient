@@ -30,8 +30,6 @@ fmecli = FMEFlowClient("https://fmeflow-fqdn/", token="FMETOKENHERE")
 ```
 ### Get all workspace owners
 ```python
-from fmeflowclient import FMEFlowClient
-fmecli = FMEFlowClient("https://fmeflow-fqdn/", token="FMETOKENHERE")
 
 # Get a list of dictionaries of all workspaces
 workspaces = fmecli.workspaces.all()
