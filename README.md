@@ -8,7 +8,7 @@ fmeflowclient is available on PyPI:
 $ python -m pip install fmeflowclient
 ```
 
-fmeflowclient is currently develop on Python 3.11.
+fmeflowclient is currently developed on Python 3.11.
 
 **This is not an offical client**
 

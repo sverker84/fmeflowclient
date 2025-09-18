@@ -95,6 +95,10 @@ class FMEFlowClient:
     def repositories(self) -> 'RepositoryManager':
         return RepositoryManager(self)
     
+    @_lazy_property
+    def users(self) -> 'UserManager':
+        return UserManager(self)
+    
     def healthcheck(self) -> Dict[str, Any]:
         """
         Performs a health check on the FME Flow server.
@@ -154,6 +158,9 @@ class AutomationsManager:
     def get_status(self, workflow_id: str) -> Dict[str, Any]:
         return self.client._http_get(f'{self.endpoint_base}/{workflow_id}/status')
     
+    def for_user(self, username: str) -> List[Dict[str, Any]]:
+        return [a for a in self.all() if a.get('userName') == username]
+    
 
 class WorkspaceManager:
     def __init__(self, client: FMEFlowClient) -> None:
@@ -169,6 +176,9 @@ class WorkspaceManager:
                 workspaces: List[Dict[str, Any]] = self.client.repositories.workspaces(repo_name)
                 all_workspaces.extend(workspaces)
         return all_workspaces
+    
+    def for_user(self, username: str) -> List[Dict[str, Any]]:
+        return [ws for ws in self.all() if ws.get('userName') == username]
     
 class LicensingManager:
     def __init__(self, client: FMEFlowClient) -> None:
@@ -202,6 +212,11 @@ class ProjectManager:
     def get(self, project_id: str) -> Dict[str, Any]:
         return self.client._http_get(f'{self.endpoint_base}/projects/{project_id}')
     
+    def for_user(self, username: str) -> List[Dict[str, Any]]:
+        projects = self.all()
+        user_projects = [proj for proj in projects if proj.get('userName') == username]
+        return user_projects
+    
 class RepositoryManager:
     def __init__(self, client: FMEFlowClient) -> None:
         self.client = client
@@ -215,4 +230,60 @@ class RepositoryManager:
     
     def workspaces(self, repository_name: str) -> List[Dict[str, Any]]:
         return self.client._http_get(f'{self.endpoint_base}/{repository_name}/items', params={"type": "WORKSPACE"})["items"]
+"""
+class Workspace:
+    def __init__(self, client: FMEFlowClient, title: str, **kwargs) -> None:
+        self.client = client
+        self.title = title
+        for attr, value in kwargs.items():
+            setattr(self, attr, value)
+"""
+
+class UserManager:
+    def __init__(self, client: FMEFlowClient) -> None:
+        self.client = client
     
+    def all(self) -> List[Dict[str, Any]]:
+        users = []
+        for user in self.client._http_get('/security/accounts')["items"]:
+            users.append(User(user, self.client))
+        return users
+
+
+class User:
+    _client: FMEFlowClient
+    name: str
+    fullName: Optional[str]
+    email: Optional[str]
+    isPasswordExpired: bool
+    isPasswordChangeNeeded: bool
+    enabled: bool
+    sharingEnabled: bool
+    type: str
+    roles: List[str]
+
+    def _cleanup_roles(self) -> None:
+        if hasattr(self, 'roles') and isinstance(self.roles, list):
+            self.roles = [role for role in self.roles if not role.startswith('user:')]
+            
+
+    def __init__(self, user_dict: dict, client: FMEFlowClient):
+        self._client = client
+        for attr, value in user_dict.items():
+            setattr(self, attr, value)
+        self._cleanup_roles()
+
+    def __repr__(self) -> str:
+        return f"<User name={self.name} type={self.type}>"
+    
+    def __str__(self) -> str:
+        return self.name
+    
+    def workspaces(self) -> List[Dict[str, Any]]:
+        return self._client.workspaces.for_user(self.name)
+    
+    def projects(self) -> List[Dict[str, Any]]:
+        return self._client.projects.for_user(self.name)
+    
+    def automations(self) -> List[Dict[str, Any]]:
+        return self._client.automations.for_user(self.name)
